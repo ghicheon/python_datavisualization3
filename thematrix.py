@@ -1,15 +1,25 @@
+# Data Visualization report #2       
+# by Ghicheon Lee
+
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
-from textblob import TextBlob
+from textblob import TextBlob   #for sentiment analysis
 
+#characters
 nodes={}
+
+#for edge
 connections = {}
+
+#result of sentiment analysis 
 sentiments={}
 
-#I got it from https://sfy.ru/transcript/matrix_ts
+#I got the matrix script from https://sfy.ru/transcript/matrix_ts
 f1 =   open("matrix.txt")
 
+#It return -1 to 1.  positive values mean good releationship.
 def get_sentiment(s):
         ss = TextBlob(s)
         return ss.sentiment.polarity 
@@ -37,26 +47,28 @@ while s:
                                         sentiments[(who,p)] += get_sentiment(sentence)
             
 
+#let's draw with networkx
+
 G = nx.DiGraph()
 
 G.add_edges_from(  connections.keys() )
 
-#for n in G.nodes():
-#    G[n][size] = nodes[n]
-
-
-hot_edges = [ t  for t in sentiments  if sentiments[t] > 0 ]
-cold_edges = [ t  for t in sentiments  if sentiments[t] <= 0 ]
+hot_edges=[]
+cold_edges=[]
+for t in sentiments:
+  if sentiments[t] > 0 :
+        hot_edges.append(t)
+  else:
+        cold_edges.append(t)
 
 pos = nx.spring_layout(G)
 plt.figure()
-plt.title("Relations in The Matrix")
+plt.title("Relations & Sentiment analysis in The Matrix")
 
-nx.draw_networkx_nodes(G, pos, node_color = 'g', alpha=0.8, node_size = [ nodes[n]*5 for n in G.nodes()] )
+nx.draw_networkx_nodes(G,pos,node_color= 'g', alpha=0.7, node_size= [ nodes[n]*5 for n in G.nodes()] )
 nx.draw_networkx_labels(G, pos)
-nx.draw_networkx_edges(G, pos, edgelist=hot_edges, edge_color='r', arrows=False)
-nx.draw_networkx_edges(G, pos, edgelist=cold_edges,edge_color='b', arrows=False)
-
+nx.draw_networkx_edges(G,pos,edgelist=hot_edges,edge_color='r',arrows=False)
+nx.draw_networkx_edges(G,pos,edgelist=cold_edges,edge_color='b',arrows=False)
 plt.axis('off')
 plt.savefig("theMatrix.png") 
 plt.show()
